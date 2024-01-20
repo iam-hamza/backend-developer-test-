@@ -4,43 +4,76 @@ namespace App\Services;
 
 use App\Events\AchievementUnlocked;
 use App\Models\User;
+use App\Models\UserAchievement;
 
 class AchievementService
 {
-    public  function handleAchievements(User $user, $lessonsWatchedCount)
+    /**
+     * Handle Lessons Watched Achievements for a user.
+     *
+     * @param User $user
+     * @param int  $lessonsWatchedCount
+     */
+    public function handleLessonWatchedAchievements(User $user, $lessonsWatchedCount)
     {
-        switch ($lessonsWatchedCount) {
+        foreach (UserAchievement::LESSONS_WATCHED_ACHIEVEMENTS as $achievement) {
+            // Check if the user does not have the achievement and the count matches
+            if (
+                !$user->hasAchievement($achievement) &&
+                $lessonsWatchedCount === UserAchievement::LEVEL_LESSONS_WATCHED_ACHIEVEMENTS[$achievement]
+            ) {
+                // Unlock the achievement and return
+                $this->unlockAchievement($user, $achievement);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Handle Comment Written Achievements for a user.
+     *
+     * @param User $user
+     * @param int  $commentsCount
+     */
+    public function handleCommentWrittenAchievements(User $user, $commentsCount)
+    {
+        // Switch statement for comment count achievements
+        switch ($commentsCount) {
             case 1:
-                self::unlockAchievement($user, 'First Lesson Watched');
+                $this->unlockAchievement($user, 'First Comment Written');
+                break;
+
+            case 3:
+                $this->unlockAchievement($user, '3 Comment Written');
                 break;
 
             case 5:
-                self::unlockAchievement($user, '5 Lessons Watched');
+                $this->unlockAchievement($user, '5 Comment Written');
                 break;
 
             case 10:
-               self::unlockAchievement($user, '10 Lessons Watched');
+                $this->unlockAchievement($user, '10 Comment Written');
                 break;
 
-            case 25:
-               self::unlockAchievement($user, '25 Lessons Watched');
+            case 20:
+                $this->unlockAchievement($user, '20 Comment Written');
                 break;
-
-            case 50:
-               self::unlockAchievement($user, '50 Lessons Watched');
-                break;
-
-          
 
             default:
-                // No achievement for the current lesson count
+                // No achievement for the current comment count
                 break;
         }
     }
 
-    private static function unlockAchievement(User $user, $achievement)
+    /**
+     * Unlock an achievement for a user and trigger the AchievementUnlocked event.
+     *
+     * @param User $user
+     * @param string $achievement
+     */
+    private function unlockAchievement(User $user, string $achievement_name)
     {
-        event(new AchievementUnlocked($user, $achievement));
-        $user->achievements()->create(['name' => $achievement]);
+        event(new AchievementUnlocked($user, $achievement_name));
+        $user->achievements()->firstOrCreate(['user_id' => $user->id, 'name' => $achievement_name], ['name' => $achievement_name]);
     }
 }

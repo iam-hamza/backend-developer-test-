@@ -74,5 +74,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserAchievement::class);
     }
+
+    /**
+     * Check if the user has the specified achievement
+     */
+    public function hasAchievement($achievementName)
+    {
+        return $this->achievements->contains('achievement_name', $achievementName);
+    }
+
+     /**
+     * The badges user has achived.
+     */
+    public function badges()
+    {
+        return $this->hasMany(UserBadge::class);
+    }
 }
 

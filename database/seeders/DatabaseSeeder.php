@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Comment;
 use App\Models\Lesson;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\UserBadge;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -26,5 +26,9 @@ class DatabaseSeeder extends Seeder
         $comments = Comment::factory()
             ->count(20)
             ->create();
+
+        User::all()->each(function (User $user) {
+            $user->badges()->save(UserBadge::create(['user_id'=>$user->id,'name' => 'Beginner']));
+        });
     }
 }

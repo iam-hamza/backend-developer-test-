@@ -10,18 +10,19 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class AchievementUnlocked
+class BadgeUnlockedEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $user;
-    public $achievementName;
+    public $badgeName;
 
-    public function __construct($achievementName,$user)
+    public function __construct($badgeName,$user)
     {
-        $this->achievementName = $achievementName;
+        $this->badgeName = $badgeName;
         $this->user = $user;
     }
+
     /**
      * Get the channels the event should broadcast on.
      *
